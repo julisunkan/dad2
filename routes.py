@@ -211,11 +211,16 @@ def dashboard():
         numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
         categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
         
+        # Generate automatic charts
+        chart_gen = ChartGenerator()
+        auto_charts = chart_gen.generate_automatic_charts(df)
+        
         return render_template('dashboard.html',
                              analytics=analytics,
                              numeric_cols=numeric_cols,
                              categorical_cols=categorical_cols,
-                             all_cols=df.columns.tolist())
+                             all_cols=df.columns.tolist(),
+                             auto_charts=auto_charts)
         
     except Exception as e:
         app.logger.error(f"Dashboard error: {str(e)}")

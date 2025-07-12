@@ -137,6 +137,11 @@ class ChartGenerator:
     def _create_scatter_chart(self, df, x_col, y_col, title):
         """Create a scatter plot"""
         try:
+            # Validate input columns
+            if not x_col or not y_col or x_col not in df.columns or y_col not in df.columns:
+                self.logger.error(f"Invalid columns for scatter plot: x_col='{x_col}', y_col='{y_col}'")
+                return None
+            
             # Limit data points for performance
             plot_df = df.head(1000)
             
@@ -191,3 +196,65 @@ class ChartGenerator:
         except Exception as e:
             self.logger.error(f"Error creating histogram: {str(e)}")
             return None
+    
+    def generate_automatic_charts(self, df):
+        """Generate relevant charts automatically based on data characteristics"""
+        try:
+            auto_charts = []
+            
+            # Get numeric and categorical columns
+            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+            categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+            
+            # Chart 1: Distribution of first numeric column (histogram)
+            if numeric_cols:
+                first_numeric = numeric_cols[0]
+                chart_html = self.create_chart(df, 'histogram', first_numeric, None, 
+                                               f'Distribution of {first_numeric}')
+                if chart_html:
+                    auto_charts.append({
+                        'title': f'Distribution of {first_numeric}',
+                        'type': 'histogram',
+                        'html': chart_html
+                    })
+            
+            # Chart 2: Top categories if categorical data exists
+            if categorical_cols:
+                first_categorical = categorical_cols[0]
+                chart_html = self.create_chart(df, 'pie', first_categorical, None, 
+                                               f'Distribution of {first_categorical}')
+                if chart_html:
+                    auto_charts.append({
+                        'title': f'Distribution of {first_categorical}',
+                        'type': 'pie',
+                        'html': chart_html
+                    })
+            
+            # Chart 3: Correlation scatter plot (if we have 2+ numeric columns)
+            if len(numeric_cols) >= 2:
+                chart_html = self.create_chart(df, 'scatter', numeric_cols[0], numeric_cols[1], 
+                                               f'{numeric_cols[0]} vs {numeric_cols[1]}')
+                if chart_html:
+                    auto_charts.append({
+                        'title': f'{numeric_cols[0]} vs {numeric_cols[1]}',
+                        'type': 'scatter',
+                        'html': chart_html
+                    })
+            
+            # Chart 4: Bar chart of categorical vs numeric (if both exist)
+            if categorical_cols and numeric_cols:
+                # Use first categorical and first numeric
+                chart_html = self.create_chart(df, 'bar', categorical_cols[0], numeric_cols[0], 
+                                               f'{numeric_cols[0]} by {categorical_cols[0]}')
+                if chart_html:
+                    auto_charts.append({
+                        'title': f'{numeric_cols[0]} by {categorical_cols[0]}',
+                        'type': 'bar',
+                        'html': chart_html
+                    })
+            
+            return auto_charts
+            
+        except Exception as e:
+            self.logger.error(f"Error generating automatic charts: {str(e)}")
+            return []
