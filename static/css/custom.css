@@ -1,11 +1,15 @@
 :root {
-    --primary-color: #0d6efd;
-    --success-color: #198754;
-    --info-color: #0dcaf0;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --dark-color: #212529;
+    --primary-color: #6f42c1;
+    --success-color: #20c997;
+    --info-color: #17a2b8;
+    --warning-color: #fd7e14;
+    --danger-color: #e83e8c;
+    --dark-color: #495057;
     --light-color: #f8f9fa;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --gradient-info: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 /* Custom theme enhancements */
@@ -23,10 +27,11 @@
 
 /* Chart containers */
 .chart-container {
-    background: var(--bs-dark);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Table enhancements */
@@ -54,12 +59,40 @@
 
 /* Card shadows */
 .card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: box-shadow 0.15s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    border: none;
 }
 
 .card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Colorful card headers */
+.card-header.bg-primary {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.card-header.bg-success {
+    background: var(--gradient-success) !important;
+    color: white !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.card-header.bg-info {
+    background: var(--gradient-info) !important;
+    color: white !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.card-header.bg-warning {
+    background: var(--gradient-warning) !important;
+    color: white !important;
+    border-radius: 12px 12px 0 0 !important;
 }
 
 /* Form enhancements */
@@ -73,6 +106,106 @@
 .navbar-brand {
     font-weight: 600;
     font-size: 1.5rem;
+}
+
+/* Body styling */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+/* Colorful buttons */
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: var(--gradient-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-success {
+    background: var(--gradient-success);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: var(--gradient-success);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+.btn-info {
+    background: var(--gradient-info);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+    background: var(--gradient-info);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-warning {
+    background: var(--gradient-warning);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background: var(--gradient-warning);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+}
+
+/* Colorful badges */
+.badge {
+    border-radius: 6px;
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+}
+
+.badge.bg-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.badge.bg-success {
+    background: var(--gradient-success) !important;
+}
+
+.badge.bg-info {
+    background: var(--gradient-info) !important;
+}
+
+.badge.bg-warning {
+    background: var(--gradient-warning) !important;
+}
+
+/* Colorful borders */
+.border-primary {
+    border-color: #6f42c1 !important;
+}
+
+.border-success {
+    border-color: #20c997 !important;
+}
+
+.border-info {
+    border-color: #17a2b8 !important;
+}
+
+.border-warning {
+    border-color: #fd7e14 !important;
+}
 }
 
 /* Button enhancements */

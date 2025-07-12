@@ -7,6 +7,7 @@ This is a Flask-based web application for data analysis that allows users to upl
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Theme preference: Colorful, vibrant interface over dark themes.
 
 ## System Architecture
 
