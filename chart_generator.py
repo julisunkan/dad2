@@ -48,14 +48,21 @@ class ChartGenerator:
                 return None
             
             if fig:
-                # Apply dark theme
+                # Apply colorful theme for better visibility
                 fig.update_layout(
-                    template="plotly_dark",
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(color='white'),
+                    template="plotly_white",
+                    paper_bgcolor='rgba(248,249,250,0.9)',
+                    plot_bgcolor='rgba(255,255,255,0.9)',
+                    font=dict(color='#495057', size=12),
                     title_font_size=16,
-                    height=400
+                    height=400,
+                    margin=dict(l=40, r=40, t=50, b=40),
+                    showlegend=True,
+                    legend=dict(
+                        bgcolor='rgba(255,255,255,0.8)',
+                        bordercolor='rgba(0,0,0,0.1)',
+                        borderwidth=1
+                    )
                 )
                 
                 return fig.to_html(include_plotlyjs=False, div_id=f"chart_{chart_type}")
@@ -217,6 +224,13 @@ class ChartGenerator:
                         'type': 'histogram',
                         'html': chart_html
                     })
+                else:
+                    # Add error message if chart failed
+                    auto_charts.append({
+                        'title': f'Distribution of {first_numeric}',
+                        'type': 'error',
+                        'html': self._create_error_message(f'Unable to generate histogram for {first_numeric}')
+                    })
             
             # Chart 2: Top categories if categorical data exists
             if categorical_cols:
@@ -229,6 +243,13 @@ class ChartGenerator:
                         'type': 'pie',
                         'html': chart_html
                     })
+                else:
+                    # Add error message if chart failed
+                    auto_charts.append({
+                        'title': f'Distribution of {first_categorical}',
+                        'type': 'error',
+                        'html': self._create_error_message(f'Unable to generate pie chart for {first_categorical}')
+                    })
             
             # Chart 3: Correlation scatter plot (if we have 2+ numeric columns)
             if len(numeric_cols) >= 2:
@@ -239,6 +260,13 @@ class ChartGenerator:
                         'title': f'{numeric_cols[0]} vs {numeric_cols[1]}',
                         'type': 'scatter',
                         'html': chart_html
+                    })
+                else:
+                    # Add error message if chart failed
+                    auto_charts.append({
+                        'title': f'{numeric_cols[0]} vs {numeric_cols[1]}',
+                        'type': 'error',
+                        'html': self._create_error_message(f'Unable to generate scatter plot for {numeric_cols[0]} vs {numeric_cols[1]}')
                     })
             
             # Chart 4: Bar chart of categorical vs numeric (if both exist)
@@ -252,9 +280,51 @@ class ChartGenerator:
                         'type': 'bar',
                         'html': chart_html
                     })
+                else:
+                    # Add error message if chart failed
+                    auto_charts.append({
+                        'title': f'{numeric_cols[0]} by {categorical_cols[0]}',
+                        'type': 'error',
+                        'html': self._create_error_message(f'Unable to generate bar chart for {numeric_cols[0]} by {categorical_cols[0]}')
+                    })
+            
+            # If no charts were generated, show a helpful message
+            if not auto_charts:
+                auto_charts.append({
+                    'title': 'No Charts Available',
+                    'type': 'info',
+                    'html': self._create_info_message('No suitable data found for automatic chart generation. Please ensure your data has numeric or categorical columns.')
+                })
             
             return auto_charts
             
         except Exception as e:
             self.logger.error(f"Error generating automatic charts: {str(e)}")
-            return []
+            return [{
+                'title': 'Chart Generation Error',
+                'type': 'error',
+                'html': self._create_error_message(f'An error occurred while generating charts: {str(e)}')
+            }]
+    
+    def _create_error_message(self, message):
+        """Create an error message HTML"""
+        return f"""
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>
+                <strong>Chart Generation Failed:</strong> {message}
+                <br><small>Please check your data or try a different visualization.</small>
+            </div>
+        </div>
+        """
+    
+    def _create_info_message(self, message):
+        """Create an info message HTML"""
+        return f"""
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <div>
+                <strong>Information:</strong> {message}
+            </div>
+        </div>
+        """

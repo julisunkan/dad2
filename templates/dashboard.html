@@ -40,11 +40,21 @@
             {% for chart in auto_charts %}
             <div class="col-lg-6 col-md-12 mb-4">
                 <div class="card h-100">
-                    <div class="card-header bg-primary">
+                    <div class="card-header bg-primary d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 text-white">
                             <i class="fas fa-chart-{{ 'bar' if chart.type == 'bar' else 'pie' if chart.type == 'pie' else 'line' }} me-2"></i>
                             {{ chart.title }}
                         </h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-light" onclick="editChartTitle(this)" 
+                                    data-bs-toggle="tooltip" title="Edit Title">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-light" onclick="downloadChart(this)" 
+                                    data-bs-toggle="tooltip" title="Download Chart">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -432,97 +442,44 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
-let chartCount = 0;
-const maxCharts = 4;
+// Function to edit chart titles
+function editChartTitle(button) {
+    const card = button.closest('.card');
+    const titleElement = card.querySelector('.card-header h5');
+    const currentTitle = titleElement.textContent.trim();
+    
+    const newTitle = prompt('Enter new chart title:', currentTitle);
+    if (newTitle && newTitle !== currentTitle) {
+        titleElement.textContent = newTitle;
+    }
+}
 
-document.getElementById('chartForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+// Function to download chart as image
+function downloadChart(button) {
+    const card = button.closest('.card');
+    const chartContainer = card.querySelector('.chart-container');
+    const plotlyDiv = chartContainer.querySelector('.plotly-graph-div');
     
-    if (chartCount >= maxCharts) {
-        alert(`Maximum of ${maxCharts} charts allowed. Please clear some charts first.`);
-        return;
+    if (plotlyDiv) {
+        Plotly.downloadImage(plotlyDiv, {
+            format: 'png',
+            width: 800,
+            height: 600,
+            filename: 'chart'
+        });
+    } else {
+        alert('Chart not found for download');
     }
-    
-    const formData = new FormData(this);
-    const chartType = formData.get('chart_type');
-    const xColumn = formData.get('x_column');
-    const yColumn = formData.get('y_column');
-    
-    if (!chartType || !xColumn) {
-        alert('Please select chart type and X-axis column');
-        return;
-    }
-    
-    // Show loading
-    document.getElementById('chartLoading').style.display = 'block';
-    
-    // Send AJAX request
-    fetch('/generate_chart', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('chartLoading').style.display = 'none';
-        
-        if (data.error) {
-            alert('Error generating chart: ' + data.error);
-            return;
-        }
-        
-        // Add chart to grid
-        addChartToGrid(data.chart_html, chartType, xColumn, yColumn);
-        chartCount++;
-        
-        // Reset form
-        document.getElementById('chartForm').reset();
-    })
-    .catch(error => {
-        document.getElementById('chartLoading').style.display = 'none';
-        alert('Error generating chart: ' + error.message);
+}
+
+// Initialize tooltips for better UX
+document.addEventListener('DOMContentLoaded', function() {
+    // Add tooltips to buttons
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
-
-function addChartToGrid(chartHtml, chartType, xColumn, yColumn) {
-    const grid = document.getElementById('chartsGrid');
-    const chartId = 'chart_' + Date.now();
-    
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'col-md-6 mb-3';
-    chartContainer.innerHTML = `
-        <div class="card border-0 shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart: ${xColumn}${yColumn ? ' vs ' + yColumn : ''}</h6>
-                <button class="btn btn-sm btn-outline-danger" onclick="removeChart(this)">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="card-body p-2">
-                <div id="${chartId}">${chartHtml}</div>
-            </div>
-        </div>
-    `;
-    
-    grid.appendChild(chartContainer);
-}
-
-function removeChart(button) {
-    button.closest('.col-md-6').remove();
-    chartCount--;
-}
-
-function clearCharts() {
-    document.getElementById('chartsGrid').innerHTML = '';
-    chartCount = 0;
-}
-
-// Update Y-axis options based on chart type
-document.getElementById('chart_type').addEventListener('change', function() {
-    const chartType = this.value;
-    const yColumnSelect = document.getElementById('y_column');
-    
-    if (chartType === 'pie' || chartType === 'histogram') {
-        yColumnSelect.disabled = true;
         yColumnSelect.value = '';
     } else {
         yColumnSelect.disabled = false;

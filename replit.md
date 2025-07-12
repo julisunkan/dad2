@@ -8,6 +8,7 @@ This is a Flask-based web application for data analysis that allows users to upl
 
 Preferred communication style: Simple, everyday language.
 Theme preference: Colorful, vibrant interface over dark themes.
+Chart preference: Automatic chart generation with error handling and title editing capabilities.
 
 ## System Architecture
 
@@ -123,3 +124,12 @@ Theme preference: Colorful, vibrant interface over dark themes.
 - **User Feedback**: Flash messages for user notifications and error reporting
 
 The application is designed as a monolithic Flask application suitable for development and small-scale deployment, with clear separation of concerns between data processing, visualization, and web interface components.
+
+## Recent Changes (July 12, 2025)
+
+- **Removed Interactive Chart Generator**: Eliminated the non-working interactive chart generator interface
+- **Enhanced Automatic Chart Generation**: Added comprehensive error handling and fallback messages for failed chart generation
+- **Improved Chart Visibility**: Changed from dark theme to colorful theme (plotly_white) for better chart visibility
+- **Added Chart Editing Features**: Users can now edit chart titles and download charts as PNG images
+- **Better Error Handling**: Charts that fail to generate now show helpful error messages instead of breaking the interface
+- **Enhanced CSS**: Added specific styling for chart containers, error messages, and improved overall visual consistency
