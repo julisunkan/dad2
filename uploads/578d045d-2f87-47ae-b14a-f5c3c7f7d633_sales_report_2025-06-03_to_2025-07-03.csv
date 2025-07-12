@@ -1,0 +1,5 @@
+Sale Number,Date,Customer,Cashier,Subtotal,Tax,Discount,Total,Payment Method
+SALE-20250703141859,2025-07-03 14:18:59,Walk-in,admin,200.00,15.00,0.00,215.00,cash
+SALE-20250703141627,2025-07-03 14:16:27,Walk-in,admin,800.00,60.00,0.00,860.00,cash
+SALE-20250703141459,2025-07-03 14:14:59,Walk-in,admin,400.00,30.00,0.00,430.00,card
+SALE-20250703141023,2025-07-03 14:10:23,Walk-in,admin,200.00,15.00,0.00,215.00,cash

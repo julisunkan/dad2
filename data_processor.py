@@ -122,17 +122,17 @@ class DataProcessor:
             elif missing_strategy == 'fill_mean':
                 numeric_cols = cleaned_df.select_dtypes(include=[np.number]).columns
                 for col in numeric_cols:
-                    cleaned_df[col].fillna(cleaned_df[col].mean(), inplace=True)
+                    cleaned_df.loc[:, col] = cleaned_df[col].fillna(cleaned_df[col].mean())
             elif missing_strategy == 'fill_median':
                 numeric_cols = cleaned_df.select_dtypes(include=[np.number]).columns
                 for col in numeric_cols:
-                    cleaned_df[col].fillna(cleaned_df[col].median(), inplace=True)
+                    cleaned_df.loc[:, col] = cleaned_df[col].fillna(cleaned_df[col].median())
             elif missing_strategy == 'fill_mode':
                 for col in cleaned_df.columns:
                     if cleaned_df[col].mode().empty:
                         continue
                     mode_value = cleaned_df[col].mode()[0]
-                    cleaned_df[col].fillna(mode_value, inplace=True)
+                    cleaned_df.loc[:, col] = cleaned_df[col].fillna(mode_value)
             
             # Remove outliers using Isolation Forest
             if operations.get('remove_outliers', False):
@@ -149,6 +149,11 @@ class DataProcessor:
             # Correct data types
             if operations.get('correct_dtypes', False):
                 cleaned_df = self._correct_data_types(cleaned_df)
+            
+            # Check if cleaning resulted in empty dataframe
+            if cleaned_df.empty:
+                self.logger.error("Data cleaning resulted in empty dataframe")
+                return df  # Return original dataframe if cleaning made it empty
             
             return cleaned_df
             
@@ -167,7 +172,7 @@ class DataProcessor:
                     try:
                         # Check if it's mostly numeric
                         numeric_converted = pd.to_numeric(corrected_df[col], errors='coerce')
-                        if numeric_converted.notna().sum() / len(corrected_df[col]) > 0.8:
+                        if len(corrected_df[col]) > 0 and numeric_converted.notna().sum() / len(corrected_df[col]) > 0.8:
                             corrected_df[col] = numeric_converted
                             continue
                     except Exception:
@@ -176,7 +181,7 @@ class DataProcessor:
                     # Try to convert to datetime
                     try:
                         datetime_converted = pd.to_datetime(corrected_df[col], errors='coerce')
-                        if datetime_converted.notna().sum() / len(corrected_df[col]) > 0.8:
+                        if len(corrected_df[col]) > 0 and datetime_converted.notna().sum() / len(corrected_df[col]) > 0.8:
                             corrected_df[col] = datetime_converted
                             continue
                     except Exception:
