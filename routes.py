@@ -305,3 +305,13 @@ def internal_error(e):
     app.logger.error(f"Internal error: {str(e)}")
     flash('An internal error occurred. Please try again.', 'error')
     return redirect(url_for('index'))
+
+@app.route('/offline')
+def offline():
+    """Offline page for PWA"""
+    return render_template('offline.html')
+
+@app.route('/manifest.json')
+def manifest():
+    """Serve the PWA manifest"""
+    return send_file('static/manifest.json', mimetype='application/json')

@@ -13,11 +13,12 @@ Chart preference: Automatic chart generation with error handling and title editi
 ## System Architecture
 
 ### Frontend Architecture
-- **Technology**: HTML templates with Bootstrap 5 (dark theme)
+- **Technology**: HTML templates with Bootstrap 5 (colorful theme)
 - **Interactive Elements**: Plotly.js for interactive charts and visualizations
 - **Styling**: Custom CSS with CSS variables for theming
 - **JavaScript**: Vanilla JavaScript for UI interactions and chart management
-- **Theme Support**: Dark/light theme toggle with localStorage persistence
+- **PWA Features**: Service worker, web app manifest, offline functionality, install prompts
+- **Theme Support**: Colorful theme with gradients for better visibility
 
 ### Backend Architecture
 - **Framework**: Flask (Python web framework)
@@ -133,3 +134,9 @@ The application is designed as a monolithic Flask application suitable for devel
 - **Added Chart Editing Features**: Users can now edit chart titles and download charts as PNG images
 - **Better Error Handling**: Charts that fail to generate now show helpful error messages instead of breaking the interface
 - **Enhanced CSS**: Added specific styling for chart containers, error messages, and improved overall visual consistency
+- **PWA Implementation**: Converted the application into a Progressive Web App with offline functionality
+  - Added web app manifest with icons and metadata
+  - Implemented service worker for offline caching
+  - Added install prompt and offline page
+  - Created PWA manager for connection status and offline queue
+  - Added proper PWA meta tags and icons for all device types
