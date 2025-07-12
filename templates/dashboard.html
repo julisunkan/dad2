@@ -46,6 +46,7 @@
                             {{ chart.title }}
                         </h5>
                         <div class="btn-group">
+                            {% if chart.type != 'error' and chart.type != 'info' %}
                             <button class="btn btn-sm btn-outline-light" onclick="editChartTitle(this)" 
                                     data-bs-toggle="tooltip" title="Edit Title">
                                 <i class="fas fa-edit"></i>
@@ -54,6 +55,7 @@
                                     data-bs-toggle="tooltip" title="Download Chart">
                                 <i class="fas fa-download"></i>
                             </button>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
@@ -446,11 +448,13 @@
 function editChartTitle(button) {
     const card = button.closest('.card');
     const titleElement = card.querySelector('.card-header h5');
+    const iconElement = titleElement.querySelector('i');
     const currentTitle = titleElement.textContent.trim();
     
     const newTitle = prompt('Enter new chart title:', currentTitle);
     if (newTitle && newTitle !== currentTitle) {
-        titleElement.textContent = newTitle;
+        // Preserve the icon and update the text
+        titleElement.innerHTML = iconElement.outerHTML + ' ' + newTitle;
     }
 }
 
@@ -460,25 +464,79 @@ function downloadChart(button) {
     const chartContainer = card.querySelector('.chart-container');
     const plotlyDiv = chartContainer.querySelector('.plotly-graph-div');
     
-    if (plotlyDiv) {
-        Plotly.downloadImage(plotlyDiv, {
-            format: 'png',
-            width: 800,
-            height: 600,
-            filename: 'chart'
-        });
+    console.log('Download button clicked');
+    console.log('Plotly available:', typeof Plotly !== 'undefined');
+    console.log('Chart container found:', !!chartContainer);
+    console.log('Plotly div found:', !!plotlyDiv);
+    
+    if (plotlyDiv && typeof Plotly !== 'undefined') {
+        // Get chart title for filename
+        const titleElement = card.querySelector('.card-header h5');
+        const title = titleElement.textContent.trim().replace(/[^a-zA-Z0-9]/g, '_');
+        
+        // Try to download
+        try {
+            Plotly.downloadImage(plotlyDiv, {
+                format: 'png',
+                width: 800,
+                height: 600,
+                filename: title || 'chart'
+            }).then(() => {
+                showSuccess('Chart downloaded successfully!');
+            }).catch((error) => {
+                console.error('Download failed:', error);
+                alert('Failed to download chart: ' + error.message);
+            });
+        } catch (error) {
+            console.error('Download error:', error);
+            alert('Chart download failed. Error: ' + error.message);
+        }
+    } else if (typeof Plotly === 'undefined') {
+        alert('Plotly library not loaded. Please refresh the page and try again.');
+    } else if (!plotlyDiv) {
+        alert('Chart not found. Please wait for the chart to load completely.');
     } else {
-        alert('Chart not found for download');
+        alert('Chart not ready for download. Please wait for the chart to fully load.');
     }
 }
 
-// Initialize tooltips for better UX
+// Function to show success message
+function showSuccess(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+    alertDiv.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 3000);
+}
+
+// Initialize tooltips and ensure Plotly is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Add tooltips to buttons
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    
+    // Check if Plotly is loaded
+    if (typeof Plotly === 'undefined') {
+        console.error('Plotly is not loaded. Chart download may not work.');
+    }
+    
+    // Wait for all charts to render
+    setTimeout(function() {
+        console.log('Charts should be ready for interaction');
+    }, 2000);
 });
         yColumnSelect.value = '';
     } else {
