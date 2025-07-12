@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Data Cleaning - Advanced Data Analysis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-broom me-2"></i>
+        Data Cleaning
+    </h2>
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('preview_data') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Preview
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-chart-bar me-1"></i>Analyze Data
+        </a>
+    </div>
+</div>
+
+<!-- Data Quality Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-primary">
+            <div class="card-body">
+                <i class="fas fa-table fa-2x text-primary mb-2"></i>
+                <h4 class="card-title">{{ "{:,}".format(cleaning_info.total_rows) }}</h4>
+                <p class="card-text">Total Rows</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-warning">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                <h4 class="card-title">{{ cleaning_info.missing_values|length }}</h4>
+                <p class="card-text">Columns with Missing Data</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-danger">
+            <div class="card-body">
+                <i class="fas fa-copy fa-2x text-danger mb-2"></i>
+                <h4 class="card-title">{{ "{:,}".format(cleaning_info.duplicates) }}</h4>
+                <p class="card-text">Duplicate Rows</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-info">
+            <div class="card-body">
+                <i class="fas fa-search fa-2x text-info mb-2"></i>
+                <h4 class="card-title">{{ cleaning_info.outliers|length }}</h4>
+                <p class="card-text">Columns with Outliers</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cleaning Options Form -->
+<div class="card border-0 shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-tools me-2"></i>
+            Cleaning Operations
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('clean_data') }}" id="cleaningForm">
+            <div class="row">
+                <!-- Remove Duplicates -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-secondary h-100">
+                        <div class="card-body">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="remove_duplicates" 
+                                       name="remove_duplicates" {% if cleaning_info.duplicates > 0 %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="remove_duplicates">
+                                    <i class="fas fa-copy me-2"></i>Remove Duplicate Rows
+                                </label>
+                            </div>
+                            <p class="text-muted small mt-2">
+                                Removes {{ "{:,}".format(cleaning_info.duplicates) }} duplicate rows from the dataset.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Handle Missing Values -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-secondary h-100">
+                        <div class="card-body">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-question-circle me-2"></i>Handle Missing Values
+                            </label>
+                            <select class="form-select" name="missing_strategy">
+                                <option value="drop" {% if cleaning_info.missing_values|length == 0 %}disabled{% endif %}>Drop rows with missing values</option>
+                                <option value="fill_mean">Fill with column mean (numeric)</option>
+                                <option value="fill_median">Fill with column median (numeric)</option>
+                                <option value="fill_mode">Fill with most frequent value</option>
+                            </select>
+                            <p class="text-muted small mt-2">
+                                {{ cleaning_info.missing_values|length }} columns have missing values.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remove Outliers -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-secondary h-100">
+                        <div class="card-body">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="remove_outliers" 
+                                       name="remove_outliers" {% if cleaning_info.outliers|length > 0 %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="remove_outliers">
+                                    <i class="fas fa-search me-2"></i>Remove Outliers
+                                </label>
+                            </div>
+                            <p class="text-muted small mt-2">
+                                Uses Isolation Forest to detect and remove outliers from numeric columns.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Correct Data Types -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-secondary h-100">
+                        <div class="card-body">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="correct_dtypes" 
+                                       name="correct_dtypes" checked>
+                                <label class="form-check-label fw-bold" for="correct_dtypes">
+                                    <i class="fas fa-magic me-2"></i>Auto-correct Data Types
+                                </label>
+                            </div>
+                            <p class="text-muted small mt-2">
+                                Automatically detects and converts data types (numeric, datetime).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-3">
+                <button type="submit" class="btn btn-success btn-lg" id="cleanBtn">
+                    <i class="fas fa-broom me-2"></i>
+                    Apply Cleaning Operations
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Missing Values Details -->
+{% if cleaning_info.missing_values %}
+<div class="card border-warning mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Missing Values Details
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Missing Count</th>
+                        <th>Percentage</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column, info in cleaning_info.missing_values.items() %}
+                    <tr>
+                        <td class="fw-bold">{{ column }}</td>
+                        <td>{{ "{:,}".format(info.count) }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                    <div class="progress-bar bg-{{ 'danger' if info.percentage > 50 else 'warning' if info.percentage > 20 else 'info' }}" 
+                                         style="width: {{ info.percentage }}%">{{ info.percentage }}%</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if info.percentage > 50 %}
+                            <span class="badge bg-danger">High</span>
+                            {% elif info.percentage > 20 %}
+                            <span class="badge bg-warning">Medium</span>
+                            {% else %}
+                            <span class="badge bg-info">Low</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Outliers Details -->
+{% if cleaning_info.outliers %}
+<div class="card border-info">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>
+            Outliers Detection Results
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Outliers Count</th>
+                        <th>Percentage of Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column, count in cleaning_info.outliers.items() %}
+                    <tr>
+                        <td class="fw-bold">{{ column }}</td>
+                        <td>{{ "{:,}".format(count) }}</td>
+                        <td>{{ "%.2f"|format((count / cleaning_info.total_rows) * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-info mt-3" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Outliers are detected using the Interquartile Range (IQR) method. Values beyond Q1 - 1.5×IQR or Q3 + 1.5×IQR are considered outliers.
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('cleaningForm').addEventListener('submit', function() {
+    document.getElementById('cleanBtn').disabled = true;
+    document.getElementById('cleanBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+});
+</script>
+{% endblock %}

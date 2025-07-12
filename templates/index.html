@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Advanced Data Analysis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <i class="fas fa-chart-line fa-4x text-primary mb-3"></i>
+            <h1 class="display-4 fw-bold">Advanced Data Analysis Platform</h1>
+            <p class="lead">Upload, clean, analyze, and visualize your data with powerful interactive tools</p>
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-upload me-2"></i>Get Started
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="fas fa-upload fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">File Upload</h5>
+                <p class="card-text">Upload CSV and Excel files with automatic format detection and validation.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="fas fa-broom fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">Data Cleaning</h5>
+                <p class="card-text">Remove duplicates, handle missing values, and detect outliers automatically.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="fas fa-chart-bar fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">Analytics Dashboard</h5>
+                <p class="card-text">Comprehensive analytics with descriptive, diagnostic, and predictive insights.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="fas fa-download fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">Export Reports</h5>
+                <p class="card-text">Export your analysis results as CSV, Excel, or summary reports.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Types -->
+<div class="row mb-5">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="text-center mb-4">Comprehensive Analytics Types</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Descriptive Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-check text-success me-2"></i>Summary Statistics</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Correlation Analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Data Profiling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Diagnostic Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-check text-success me-2"></i>Group Analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Distribution Analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Pattern Detection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-crystal-ball me-2"></i>Predictive Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-check text-success me-2"></i>Trend Analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Pattern Recognition</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Forecast Summaries</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Prescriptive Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-check text-success me-2"></i>Data Quality Score</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Optimization Suggestions</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Actionable Recommendations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Start Guide -->
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-gradient">
+                <h3 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Start Guide</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3 text-center">
+                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2">1</div>
+                        <h6>Upload Data</h6>
+                        <p class="small">Upload your CSV or Excel file</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2">2</div>
+                        <h6>Preview & Clean</h6>
+                        <p class="small">Review and clean your data</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2">3</div>
+                        <h6>Analyze</h6>
+                        <p class="small">Explore comprehensive analytics</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2">4</div>
+                        <h6>Export</h6>
+                        <p class="small">Download results and reports</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

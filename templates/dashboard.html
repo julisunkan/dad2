@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - Advanced Data Analysis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-bar me-2"></i>
+        Analytics Dashboard
+    </h2>
+    <div class="btn-group" role="group">
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-download me-1"></i>Export
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('export_data', format='csv') }}">
+                    <i class="fas fa-file-csv me-2"></i>Export as CSV
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', format='xlsx') }}">
+                    <i class="fas fa-file-excel me-2"></i>Export as Excel
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', format='json') }}">
+                    <i class="fas fa-file-code me-2"></i>Export as JSON
+                </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Summary Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-primary h-100">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Descriptive
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small">{{ analytics.descriptive.data_profile.total_rows:,d }} rows analyzed</p>
+                <p class="small">{{ analytics.descriptive.data_profile.numeric_columns }} numeric columns</p>
+                <p class="small">{{ analytics.descriptive.data_profile.categorical_columns }} categorical columns</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-success h-100">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Diagnostic
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small">{{ analytics.diagnostic.value_counts|length }} categorical analyzed</p>
+                <p class="small">{{ analytics.diagnostic.distribution_analysis|length }} distributions</p>
+                <p class="small">Pattern analysis complete</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-info h-100">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-crystal-ball me-2"></i>Predictive
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small">{{ analytics.predictive.trends|length }} trends detected</p>
+                <p class="small">Pattern recognition active</p>
+                <p class="small">Forecast summary available</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-warning h-100">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Prescriptive
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small">Quality Score: {{ analytics.prescriptive.data_quality_score }}%</p>
+                <p class="small">{{ analytics.prescriptive.recommendations|length }} recommendations</p>
+                <p class="small">{{ analytics.prescriptive.optimization_suggestions|length }} optimizations</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Generation Section -->
+<div class="card border-0 shadow mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>
+            Interactive Chart Generator
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="chartForm" class="mb-3">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="chart_type" class="form-label">Chart Type</label>
+                    <select class="form-select" id="chart_type" name="chart_type" required>
+                        <option value="">Select Chart Type</option>
+                        <option value="bar">Bar Chart</option>
+                        <option value="line">Line Chart</option>
+                        <option value="pie">Pie Chart</option>
+                        <option value="scatter">Scatter Plot</option>
+                        <option value="box">Box Plot</option>
+                        <option value="histogram">Histogram</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="x_column" class="form-label">X-Axis Column</label>
+                    <select class="form-select" id="x_column" name="x_column" required>
+                        <option value="">Select Column</option>
+                        {% for col in all_cols %}
+                        <option value="{{ col }}">{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="y_column" class="form-label">Y-Axis Column</label>
+                    <select class="form-select" id="y_column" name="y_column">
+                        <option value="">Select Column (Optional)</option>
+                        {% for col in numeric_cols %}
+                        <option value="{{ col }}">{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="chart_title" class="form-label">Chart Title</label>
+                    <input type="text" class="form-control" id="chart_title" name="title" placeholder="Enter chart title">
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-bar me-2"></i>Generate Chart
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearCharts()">
+                    <i class="fas fa-trash me-2"></i>Clear All Charts
+                </button>
+            </div>
+        </form>
+        
+        <!-- Charts Grid -->
+        <div id="chartsGrid" class="row g-3">
+            <!-- Charts will be added here dynamically -->
+        </div>
+        
+        <div id="chartLoading" class="text-center py-4" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Generating chart...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Details Tabs -->
+<div class="card border-0 shadow">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="analyticsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="descriptive-tab" data-bs-toggle="tab" data-bs-target="#descriptive" type="button" role="tab">
+                    <i class="fas fa-chart-pie me-2"></i>Descriptive Analytics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="diagnostic-tab" data-bs-toggle="tab" data-bs-target="#diagnostic" type="button" role="tab">
+                    <i class="fas fa-search me-2"></i>Diagnostic Analytics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="predictive-tab" data-bs-toggle="tab" data-bs-target="#predictive" type="button" role="tab">
+                    <i class="fas fa-crystal-ball me-2"></i>Predictive Analytics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="prescriptive-tab" data-bs-toggle="tab" data-bs-target="#prescriptive" type="button" role="tab">
+                    <i class="fas fa-lightbulb me-2"></i>Prescriptive Analytics
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="analyticsTabContent">
+            <!-- Descriptive Analytics -->
+            <div class="tab-pane fade show active" id="descriptive" role="tabpanel">
+                <h5>Summary Statistics</h5>
+                {% if analytics.descriptive.basic_stats %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Statistic</th>
+                                {% for col in analytics.descriptive.basic_stats.keys() %}
+                                <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'] %}
+                            <tr>
+                                <td class="fw-bold">{{ stat }}</td>
+                                {% for col, stats in analytics.descriptive.basic_stats.items() %}
+                                <td>
+                                    {% if stats[stat] is defined %}
+                                    {{ "%.3f"|format(stats[stat]) if stats[stat] is number else stats[stat] }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No numeric columns available for statistical analysis.
+                </div>
+                {% endif %}
+                
+                <!-- Data Profile -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h6>Data Profile</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                Total Rows <span class="badge bg-primary">{{ analytics.descriptive.data_profile.total_rows:,d }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Total Columns <span class="badge bg-info">{{ analytics.descriptive.data_profile.total_columns }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Numeric Columns <span class="badge bg-success">{{ analytics.descriptive.data_profile.numeric_columns }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Categorical Columns <span class="badge bg-warning">{{ analytics.descriptive.data_profile.categorical_columns }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Missing Values <span class="badge bg-danger">{{ analytics.descriptive.data_profile.missing_values_total }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diagnostic Analytics -->
+            <div class="tab-pane fade" id="diagnostic" role="tabpanel">
+                <div class="row">
+                    <!-- Value Counts -->
+                    {% if analytics.diagnostic.value_counts %}
+                    <div class="col-md-6">
+                        <h6>Categorical Data Analysis</h6>
+                        {% for column, counts in analytics.diagnostic.value_counts.items() %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ column }}</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for value, count in counts.items() %}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">{{ value }}</span>
+                                    <span class="badge bg-secondary">{{ count }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Distribution Analysis -->
+                    {% if analytics.diagnostic.distribution_analysis %}
+                    <div class="col-md-6">
+                        <h6>Distribution Analysis</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Column</th>
+                                        <th>Mean</th>
+                                        <th>Median</th>
+                                        <th>Std Dev</th>
+                                        <th>Skewness</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for column, stats in analytics.diagnostic.distribution_analysis.items() %}
+                                    <tr>
+                                        <td class="fw-bold">{{ column }}</td>
+                                        <td>{{ "%.3f"|format(stats.mean) }}</td>
+                                        <td>{{ "%.3f"|format(stats.median) }}</td>
+                                        <td>{{ "%.3f"|format(stats.std) }}</td>
+                                        <td>{{ "%.3f"|format(stats.skewness) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Predictive Analytics -->
+            <div class="tab-pane fade" id="predictive" role="tabpanel">
+                <h6>Trend Analysis</h6>
+                {% if analytics.predictive.trends %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Trend Direction</th>
+                                <th>Change Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for column, trend in analytics.predictive.trends.items() %}
+                            <tr>
+                                <td class="fw-bold">{{ column }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if trend.direction == 'increasing' else 'danger' }}">
+                                        <i class="fas fa-arrow-{{ 'up' if trend.direction == 'increasing' else 'down' }} me-1"></i>
+                                        {{ trend.direction.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ "%.2f"|format(trend.change_percentage) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ analytics.predictive.forecast_summary }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Prescriptive Analytics -->
+            <div class="tab-pane fade" id="prescriptive" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h2 class="text-{{ 'success' if analytics.prescriptive.data_quality_score > 80 else 'warning' if analytics.prescriptive.data_quality_score > 60 else 'danger' }}">
+                                    {{ analytics.prescriptive.data_quality_score }}%
+                                </h2>
+                                <p class="card-text">Data Quality Score</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Recommendations</h6>
+                        {% if analytics.prescriptive.recommendations %}
+                        <ul class="list-group">
+                            {% for recommendation in analytics.prescriptive.recommendations %}
+                            <li class="list-group-item">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                {{ recommendation }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            No data quality issues detected. Your data looks good!
+                        </div>
+                        {% endif %}
+                        
+                        {% if analytics.prescriptive.optimization_suggestions %}
+                        <h6 class="mt-3">Optimization Suggestions</h6>
+                        <ul class="list-group">
+                            {% for suggestion in analytics.prescriptive.optimization_suggestions %}
+                            <li class="list-group-item">
+                                <i class="fas fa-cogs text-info me-2"></i>
+                                {{ suggestion }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+let chartCount = 0;
+const maxCharts = 4;
+
+document.getElementById('chartForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (chartCount >= maxCharts) {
+        alert(`Maximum of ${maxCharts} charts allowed. Please clear some charts first.`);
+        return;
+    }
+    
+    const formData = new FormData(this);
+    const chartType = formData.get('chart_type');
+    const xColumn = formData.get('x_column');
+    const yColumn = formData.get('y_column');
+    
+    if (!chartType || !xColumn) {
+        alert('Please select chart type and X-axis column');
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('chartLoading').style.display = 'block';
+    
+    // Send AJAX request
+    fetch('/generate_chart', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('chartLoading').style.display = 'none';
+        
+        if (data.error) {
+            alert('Error generating chart: ' + data.error);
+            return;
+        }
+        
+        // Add chart to grid
+        addChartToGrid(data.chart_html, chartType, xColumn, yColumn);
+        chartCount++;
+        
+        // Reset form
+        document.getElementById('chartForm').reset();
+    })
+    .catch(error => {
+        document.getElementById('chartLoading').style.display = 'none';
+        alert('Error generating chart: ' + error.message);
+    });
+});
+
+function addChartToGrid(chartHtml, chartType, xColumn, yColumn) {
+    const grid = document.getElementById('chartsGrid');
+    const chartId = 'chart_' + Date.now();
+    
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'col-md-6 mb-3';
+    chartContainer.innerHTML = `
+        <div class="card border-0 shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart: ${xColumn}${yColumn ? ' vs ' + yColumn : ''}</h6>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeChart(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="card-body p-2">
+                <div id="${chartId}">${chartHtml}</div>
+            </div>
+        </div>
+    `;
+    
+    grid.appendChild(chartContainer);
+}
+
+function removeChart(button) {
+    button.closest('.col-md-6').remove();
+    chartCount--;
+}
+
+function clearCharts() {
+    document.getElementById('chartsGrid').innerHTML = '';
+    chartCount = 0;
+}
+
+// Update Y-axis options based on chart type
+document.getElementById('chart_type').addEventListener('change', function() {
+    const chartType = this.value;
+    const yColumnSelect = document.getElementById('y_column');
+    
+    if (chartType === 'pie' || chartType === 'histogram') {
+        yColumnSelect.disabled = true;
+        yColumnSelect.value = '';
+    } else {
+        yColumnSelect.disabled = false;
+    }
+});
+</script>
+{% endblock %}
