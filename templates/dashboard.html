@@ -38,7 +38,7 @@
                 </h6>
             </div>
             <div class="card-body">
-                <p class="small">{{ analytics.descriptive.data_profile.total_rows:,d }} rows analyzed</p>
+                <p class="small">{{ "{:,}".format(analytics.descriptive.data_profile.total_rows) }} rows analyzed</p>
                 <p class="small">{{ analytics.descriptive.data_profile.numeric_columns }} numeric columns</p>
                 <p class="small">{{ analytics.descriptive.data_profile.categorical_columns }} categorical columns</p>
             </div>
@@ -234,7 +234,7 @@
                         <h6>Data Profile</h6>
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between">
-                                Total Rows <span class="badge bg-primary">{{ analytics.descriptive.data_profile.total_rows:,d }}</span>
+                                Total Rows <span class="badge bg-primary">{{ "{:,}".format(analytics.descriptive.data_profile.total_rows) }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
                                 Total Columns <span class="badge bg-info">{{ analytics.descriptive.data_profile.total_columns }}</span>
